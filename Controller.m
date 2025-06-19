@@ -23,13 +23,20 @@
 
 @implementation Controller
 
-- (void) applicationDidFinishLaunching: (NSNotification *)aNotif
+- (void)applicationDidFinishLaunching:(NSNotification *)note
 {
-  if([NSApp isScriptingSupported]) {
+  if ([NSApp isScriptingSupported]) {
     [NSApp initializeApplicationScripting];
   }
 
   [[StylesPanel sharedInstance] setStylesMenu:[stylesMenu submenu]];
+
+  NSArray *args = [[NSProcessInfo processInfo] arguments];
+
+  // If no file was passed, create untitled document
+  if ([args count] <= 1) {
+    [Document openUntitled];
+  }
 }
 
 /* 
