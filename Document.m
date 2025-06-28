@@ -80,11 +80,6 @@ static NSWindow* _lastMainWindow;
 
   encodingIfPlainText = [[Preferences objectForKey:PlainTextEncoding] intValue];
 
-  [self setPrintInfo:[NSPrintInfo sharedPrintInfo]];
-  [[self printInfo] setHorizontalPagination:NSFitPagination];
-  [[self printInfo] setHorizontallyCentered:NO];
-  [[self printInfo] setVerticallyCentered:NO];
-		
   // This gives us our first view
   [self setHasMultiplePages:[[Preferences objectForKey:ShowPageBreaks] boolValue]];
 
@@ -423,9 +418,14 @@ static NSWindow* _lastMainWindow;
   }
 }
 
-- (NSPrintInfo *)printInfo
-{
-  return printInfo;
+- (NSPrintInfo *)printInfo {
+    if (!printInfo) {
+        printInfo = [[NSPrintInfo sharedPrintInfo] copy];
+        [printInfo setHorizontalPagination:NSFitPagination];
+        [printInfo setHorizontallyCentered:NO];
+        [printInfo setVerticallyCentered:NO];
+    }
+    return printInfo;
 }
 
 /* Multiple page related code */
