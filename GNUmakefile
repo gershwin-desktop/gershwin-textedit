@@ -5,14 +5,14 @@ GNUSTEP_INSTALLATION_DOMAIN =	SYSTEM
 APP_NAME=			TextEdit
 PACKAGE_NAME=			TextEdit
 TextEdit_PRINCIPAL_CLASS=	NSApplication
-TextEdit_APPLICATION_ICON=	Edit.tiff
+TextEdit_APPLICATION_ICON=	TextEdit.png
 
 #
 # Resource files
 #
 TextEdit_MAIN_MODEL_FILE=	Edit.gorm
 TextEdit_RESOURCE_FILES= \
-	Edit.tiff \
+	TextEdit.png \
 	EditTitle.tiff \
 	Encodings.txt \
 	ScriptingInfo.plist \

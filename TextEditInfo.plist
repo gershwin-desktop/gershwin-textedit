@@ -1,6 +1,6 @@
 {
     ApplicationDescription = "an OpenStep text editor";
-    ApplicationIcon = Edit.tiff;
+    ApplicationIcon = TextEdit.png;
     ApplicationName = TextEdit;
     ApplicationRelease = 4;
     Authors = (
