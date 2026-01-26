@@ -89,7 +89,7 @@ static id sharedStylesPanel = nil;
 
     NSString *key = @"";
     if (c < 10) key = [NSString stringWithFormat:@"%ld", c];
-    NSMenuItem *item = [stylesMenu addItemWithTitle:title
+    NSMenuItem *item = (NSMenuItem *)[stylesMenu addItemWithTitle:title
                                              action:@selector(applyMenuItem:) 
                                       keyEquivalent:key];
     [item setTarget:self];
@@ -134,8 +134,6 @@ static id sharedStylesPanel = nil;
     }
   }
   else {
-    NSFont *font = [Preferences objectForKey:RichTextFont];
-
     NSMutableDictionary* it = [NSMutableDictionary dictionary];
     [it setValue:@"Body" forKey:@"title"];
     [styles addObject:it];

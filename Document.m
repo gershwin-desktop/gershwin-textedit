@@ -845,7 +845,6 @@ static BOOL hyphenationSupported(void)
   if ([panel runModal]) {
     NSArray *paths = [panel filenames];
     NSTextView *textView = [self firstTextView];
-    NSInteger numberOfErrors = 0;
     NSMutableAttributedString *attachments = [[NSMutableAttributedString alloc] init];
           
     for (NSString *path in paths) {
@@ -858,7 +857,6 @@ static BOOL hyphenationSupported(void)
         [attachment release];
       } else {
         NSLog(@"error adding: %@", path);
-        numberOfErrors++;
       }
     }
           
