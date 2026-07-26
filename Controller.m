@@ -235,6 +235,90 @@
     [undoItem release];
     [redoItem release];
   }
+
+  [self _addMenuSeparators];
+}
+
+- (NSMenu *) _appMenu
+{
+  for (NSMenuItem *item in [[NSApp mainMenu] itemArray]) {
+    NSMenu *sub = [item submenu];
+    if (sub && ([sub indexOfItemWithTitle:@"Hide"] >= 0
+                || [sub indexOfItemWithTitle:@"Quit"] >= 0)) {
+      return sub;
+    }
+  }
+  return nil;
+}
+
+- (void) _addMenuSeparators
+{
+  NSMenu *mainMenu = [NSApp mainMenu];
+  NSMenu *menu;
+  NSInteger idx;
+
+  // Application menu: Info Panel... | --- | Preferences... | --- | Help... | --- | Hide | --- | Quit
+  menu = [self _appMenu];
+  if (menu) {
+    idx = [menu indexOfItemWithTitle:@"Quit"];
+    if (idx >= 0) [menu insertItem:[NSMenuItem separatorItem] atIndex:idx];
+    idx = [menu indexOfItemWithTitle:@"Hide"];
+    if (idx >= 0) [menu insertItem:[NSMenuItem separatorItem] atIndex:idx];
+    idx = [menu indexOfItemWithTitle:@"Help..."];
+    if (idx >= 0) [menu insertItem:[NSMenuItem separatorItem] atIndex:idx];
+    idx = [menu indexOfItemWithTitle:@"Preferences..."];
+    if (idx >= 0) [menu insertItem:[NSMenuItem separatorItem] atIndex:idx + 1];
+    idx = [menu indexOfItemWithTitle:@"Info Panel..."];
+    if (idx >= 0) [menu insertItem:[NSMenuItem separatorItem] atIndex:idx + 1];
+  }
+
+  // Document: New, Open..., Open Recent | --- | Save..., Save As..., Save To..., Save All | --- | Reread, Revert To Saved | --- | Close
+  menu = [[mainMenu itemWithTitle:@"Document"] submenu];
+  if (menu) {
+    idx = [menu indexOfItemWithTitle:@"Revert To Saved"];
+    if (idx >= 0) [menu insertItem:[NSMenuItem separatorItem] atIndex:idx + 1];
+    idx = [menu indexOfItemWithTitle:@"Save All"];
+    if (idx >= 0) [menu insertItem:[NSMenuItem separatorItem] atIndex:idx + 1];
+    idx = [menu indexOfItemWithTitle:@"Open Recent"];
+    if (idx >= 0) [menu insertItem:[NSMenuItem separatorItem] atIndex:idx + 1];
+  }
+
+  // Edit: Cut, Copy, Paste, Delete | --- | Find | --- | Attach Files..., Add Link..., Spelling... | --- | Select All
+  menu = [[mainMenu itemWithTitle:@"Edit"] submenu];
+  if (menu) {
+    idx = [menu indexOfItemWithTitle:@"Select All"];
+    if (idx >= 0) [menu insertItem:[NSMenuItem separatorItem] atIndex:idx];
+    idx = [menu indexOfItemWithTitle:@"Spelling..."];
+    if (idx >= 0) [menu insertItem:[NSMenuItem separatorItem] atIndex:idx + 1];
+    idx = [menu indexOfItemWithTitle:@"Find"];
+    if (idx >= 0) [menu insertItem:[NSMenuItem separatorItem] atIndex:idx + 1];
+    idx = [menu indexOfItemWithTitle:@"Delete"];
+    if (idx >= 0) [menu insertItem:[NSMenuItem separatorItem] atIndex:idx + 1];
+  }
+
+  // Format: Font | --- | Text | --- | Styles | --- | toggle items | --- | Page Layout...
+  menu = [[mainMenu itemWithTitle:@"Format"] submenu];
+  if (menu) {
+    idx = [menu indexOfItemWithTitle:@"Page Layout..."];
+    if (idx >= 0) [menu insertItem:[NSMenuItem separatorItem] atIndex:idx];
+    idx = [menu indexOfItemWithTitle:@"Styles"];
+    if (idx >= 0) [menu insertItem:[NSMenuItem separatorItem] atIndex:idx + 1];
+    idx = [menu indexOfItemWithTitle:@"Text"];
+    if (idx >= 0) [menu insertItem:[NSMenuItem separatorItem] atIndex:idx + 1];
+    idx = [menu indexOfItemWithTitle:@"Font"];
+    if (idx >= 0) [menu insertItem:[NSMenuItem separatorItem] atIndex:idx + 1];
+  }
+
+  // Windows: Arrange in Front | --- | Miniaturize Window, Close Window | --- | Print...
+  menu = [[mainMenu itemWithTitle:@"Windows"] submenu];
+  if (menu) {
+    idx = [menu indexOfItemWithTitle:@"Print..."];
+    if (idx >= 0) [menu insertItem:[NSMenuItem separatorItem] atIndex:idx];
+    idx = [menu indexOfItemWithTitle:@"Close Window"];
+    if (idx >= 0) [menu insertItem:[NSMenuItem separatorItem] atIndex:idx + 1];
+    idx = [menu indexOfItemWithTitle:@"Arrange in Front"];
+    if (idx >= 0) [menu insertItem:[NSMenuItem separatorItem] atIndex:idx + 1];
+  }
 }
 
 - (void) undo:(id)sender
