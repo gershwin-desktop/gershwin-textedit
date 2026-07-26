@@ -217,6 +217,57 @@
    */
   NSMenu *f =[[[[[NSApp mainMenu] itemWithTitle:@"Format"] submenu] itemWithTitle:@"Font"] submenu];
   [[NSFontManager sharedFontManager] setFontMenu:f];
+
+  // Add Undo/Redo to Edit menu
+  NSMenu *editMenu = [[[NSApp mainMenu] itemWithTitle:@"Edit"] submenu];
+  if (editMenu) {
+    NSMenuItem *undoItem = [[NSMenuItem alloc] initWithTitle:@"Undo"
+                                                      action:@selector(undo:)
+                                               keyEquivalent:@"z"];
+    NSMenuItem *redoItem = [[NSMenuItem alloc] initWithTitle:@"Redo"
+                                                      action:@selector(redo:)
+                                               keyEquivalent:@"Z"];
+    [undoItem setTarget:self];
+    [redoItem setTarget:self];
+    [editMenu insertItem:undoItem atIndex:0];
+    [editMenu insertItem:redoItem atIndex:1];
+    [editMenu insertItem:[NSMenuItem separatorItem] atIndex:2];
+    [undoItem release];
+    [redoItem release];
+  }
+}
+
+- (void) undo:(id)sender
+{
+  Document *doc = [Document documentForWindow: [NSApp keyWindow]];
+  [doc undo: sender];
+}
+
+- (void) redo:(id)sender
+{
+  Document *doc = [Document documentForWindow: [NSApp keyWindow]];
+  [doc redo: sender];
+}
+
+- (BOOL) validateMenuItem:(NSMenuItem *)aCell
+{
+  SEL action = [aCell action];
+
+  if (action == @selector(undo:) || action == @selector(redo:))
+    {
+      Document *doc = [Document documentForWindow: [NSApp keyWindow]];
+      if (action == @selector(undo:))
+        {
+          [aCell setTitle:[[doc undoManager] undoMenuItemTitle]];
+          return doc && [[doc undoManager] canUndo];
+        }
+      else
+        {
+          [aCell setTitle:[[doc undoManager] redoMenuItemTitle]];
+          return doc && [[doc undoManager] canRedo];
+        }
+    }
+  return YES;
 }
 
 - (NSArray*) documents

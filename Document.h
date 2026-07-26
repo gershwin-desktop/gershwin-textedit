@@ -42,6 +42,7 @@ extern void SetUpEncodingPopupButton(NSPopUpButton *popup, int selectedEncoding,
   BOOL	isRichText;
   BOOL  isSelecting;
   int	encodingIfPlainText;
+  NSUndoManager *undoManager;
 }
 
 // Don't call -init; call one of these methods... */
@@ -92,6 +93,7 @@ extern void SetUpEncodingPopupButton(NSPopUpButton *popup, int selectedEncoding,
 - (NSTextView *) firstTextView;
 - (NSWindow *) window;
 - (NSLayoutManager *) layoutManager;
+- (NSUndoManager *) undoManager;
 
 /* Misc methods */
 + (Document *) documentForWindow: (NSWindow *)window;
@@ -136,6 +138,8 @@ extern void SetUpEncodingPopupButton(NSPopUpButton *popup, int selectedEncoding,
 
 /* Action methods */
 + (void) open: (id)sender;
+- (void) undo: (id)sender;
+- (void) redo: (id)sender;
 - (void) saveAs: (id)sender;
 - (void) saveTo: (id)sender;
 - (void) save: (id)sender;

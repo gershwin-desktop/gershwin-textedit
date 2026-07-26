@@ -39,6 +39,10 @@
 #import "TextView.h"
 #import "Preferences.h"
 
+@interface Document ()
+- (void)_enableUndoOnTextView:(NSTextView *)textView;
+@end
+
 static NSWindow* _lastMainWindow;
 
 @implementation Document
@@ -52,9 +56,30 @@ static NSWindow* _lastMainWindow;
 {
   NSTextView *textView = [self firstTextView];
   [textView setUsesFontPanel:YES];
-  [textView setDelegate:self];
+  [self _enableUndoOnTextView:textView];
   [self setRichText:![[Preferences objectForKey:RichText] boolValue]];
   [self setHyphenationFactor:0.0];
+}
+
+- (void)_enableUndoOnTextView:(NSTextView *)textView
+{
+  [textView setAllowsUndo:YES];
+  [textView setDelegate:self];
+}
+
+- (NSUndoManager *)undoManager
+{
+  return undoManager;
+}
+
+- (void)undo:(id)sender
+{
+  [undoManager undo];
+}
+
+- (void)redo:(id)sender
+{
+  [undoManager redo];
 }
 
 - (id)init
@@ -64,6 +89,7 @@ static NSWindow* _lastMainWindow;
 
   self = [super init];
   textStorage = [[NSTextStorage alloc] init];
+  undoManager = [[NSUndoManager alloc] init];
 
   if (![NSBundle loadNibNamed:@"Document" owner:self]) {
     NSLog (@"Failed to load Document.nib");
@@ -249,6 +275,7 @@ static NSWindow* _lastMainWindow;
   [textStorage release];
   [printInfo release];
   [fileObserver release];
+  [undoManager release];
   [super dealloc];
 }
 
@@ -462,6 +489,7 @@ static NSWindow* _lastMainWindow;
   [textView setVerticallyResizable:NO];
   [pagesView addSubview:textView];
   [[self layoutManager] addTextContainer:textContainer];
+  [self _enableUndoOnTextView:textView];
   [textView release];
   [textContainer release];
 }
@@ -542,7 +570,9 @@ static NSWindow* _lastMainWindow;
     */
     [scrollView setDocumentView:textView];
     [scrollView setHasHorizontalScroller:NO];
-		
+
+    [self _enableUndoOnTextView:textView];
+
     [textView release];
     [textContainer release];
   }
@@ -1183,6 +1213,11 @@ static BOOL hyphenationSupported(void)
 //============================================================================ 
 //   Text view delegation messages
 //============================================================================
+- (NSUndoManager *)undoManagerForTextView:(NSTextView *)view
+{
+  return undoManager;
+}
+
 - (void) textDidChange:(NSNotification *)aNot
 {
   if (!isDocumentEdited) {
@@ -1549,7 +1584,13 @@ validateToggleItem (NSMenuItem *aCell, BOOL useFirst,
 #ifdef GNUSTEP
   const char	*sel_name = sel_getName (action);
 
-  if (!strcmp (sel_name, sel_getName (@selector (toggleRich:)))) {
+  if (!strcmp (sel_name, sel_getName (@selector (undo:)))) {
+    [aCell setTitle:[undoManager undoMenuItemTitle]];
+    return [undoManager canUndo];
+  } else if (!strcmp (sel_name, sel_getName (@selector (redo:)))) {
+    [aCell setTitle:[undoManager redoMenuItemTitle]];
+    return [undoManager canRedo];
+  } else if (!strcmp (sel_name, sel_getName (@selector (toggleRich:)))) {
     validateToggleItem (aCell, [self isRichText], _(@"&Make Plain Text"), _(@"&Make Rich Text"));
   } else if (!strcmp (sel_name, sel_getName (@selector (togglePageBreaks:)))) {
     validateToggleItem (aCell, [self hasMultiplePages], _(@"&Wrap to Window"), _(@"&Wrap to Page"));
@@ -1559,7 +1600,13 @@ validateToggleItem (NSMenuItem *aCell, BOOL useFirst,
     validateToggleItem (aCell, ([self hyphenationFactor] > 0.0), _(@"Disallow &Hyphenation"), _(@"Allow &Hyphenation"));
   }
 #else
-  if (action == @selector(toggleRich:)) {
+  if (action == @selector(undo:)) {
+    [aCell setTitle:[undoManager undoMenuItemTitle]];
+    return [undoManager canUndo];
+  } else if (action == @selector(redo:)) {
+    [aCell setTitle:[undoManager redoMenuItemTitle]];
+    return [undoManager canRedo];
+  } else if (action == @selector(toggleRich:)) {
     validateToggleItem(aCell, [self isRichText], _(@"&Make Plain Text"), _(@"&Make Rich Text"));
   } else if (action == @selector(togglePageBreaks:)) {
     validateToggleItem(aCell, [self hasMultiplePages], _(@"&Wrap to Window"), _(@"&Wrap to Page"));
