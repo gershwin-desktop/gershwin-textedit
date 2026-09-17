@@ -1,3 +1,4 @@
+GNUSTEP_INSTALLATION_DOMAIN = SYSTEM
 #
 #   Makefile.preamble
 #
@@ -38,3 +39,4 @@ GNUSTEP_INSTALLATION_DIR=$(GNUSTEP_SYSTEM_ROOT)
 
 # Additional directories to be created during installation
 ADDITIONAL_INSTALL_DIRS +=
+

@@ -217,6 +217,141 @@
    */
   NSMenu *f =[[[[[NSApp mainMenu] itemWithTitle:@"Format"] submenu] itemWithTitle:@"Font"] submenu];
   [[NSFontManager sharedFontManager] setFontMenu:f];
+
+  // Add Undo/Redo to Edit menu
+  NSMenu *editMenu = [[[NSApp mainMenu] itemWithTitle:@"Edit"] submenu];
+  if (editMenu) {
+    NSMenuItem *undoItem = [[NSMenuItem alloc] initWithTitle:@"Undo"
+                                                      action:@selector(undo:)
+                                               keyEquivalent:@"z"];
+    NSMenuItem *redoItem = [[NSMenuItem alloc] initWithTitle:@"Redo"
+                                                      action:@selector(redo:)
+                                               keyEquivalent:@"Z"];
+    [undoItem setTarget:self];
+    [redoItem setTarget:self];
+    [editMenu insertItem:undoItem atIndex:0];
+    [editMenu insertItem:redoItem atIndex:1];
+    [editMenu insertItem:[NSMenuItem separatorItem] atIndex:2];
+    [undoItem release];
+    [redoItem release];
+  }
+
+  [self _addMenuSeparators];
+}
+
+- (NSMenu *) _appMenu
+{
+  for (NSMenuItem *item in [[NSApp mainMenu] itemArray]) {
+    NSMenu *sub = [item submenu];
+    if (sub && ([sub indexOfItemWithTitle:@"Hide"] >= 0
+                || [sub indexOfItemWithTitle:@"Quit"] >= 0)) {
+      return sub;
+    }
+  }
+  return nil;
+}
+
+- (void) _addMenuSeparators
+{
+  NSMenu *mainMenu = [NSApp mainMenu];
+  NSMenu *menu;
+  NSInteger idx;
+
+  // Application menu: Info Panel... | --- | Preferences... | --- | Help... | --- | Hide | --- | Quit
+  menu = [self _appMenu];
+  if (menu) {
+    idx = [menu indexOfItemWithTitle:@"Quit"];
+    if (idx >= 0) [menu insertItem:[NSMenuItem separatorItem] atIndex:idx];
+    idx = [menu indexOfItemWithTitle:@"Hide"];
+    if (idx >= 0) [menu insertItem:[NSMenuItem separatorItem] atIndex:idx];
+    idx = [menu indexOfItemWithTitle:@"Help..."];
+    if (idx >= 0) [menu insertItem:[NSMenuItem separatorItem] atIndex:idx];
+    idx = [menu indexOfItemWithTitle:@"Preferences..."];
+    if (idx >= 0) [menu insertItem:[NSMenuItem separatorItem] atIndex:idx + 1];
+    idx = [menu indexOfItemWithTitle:@"Info Panel..."];
+    if (idx >= 0) [menu insertItem:[NSMenuItem separatorItem] atIndex:idx + 1];
+  }
+
+  // Document: New, Open..., Open Recent | --- | Save..., Save As..., Save To..., Save All | --- | Reread, Revert To Saved | --- | Close
+  menu = [[mainMenu itemWithTitle:@"Document"] submenu];
+  if (menu) {
+    idx = [menu indexOfItemWithTitle:@"Revert To Saved"];
+    if (idx >= 0) [menu insertItem:[NSMenuItem separatorItem] atIndex:idx + 1];
+    idx = [menu indexOfItemWithTitle:@"Save All"];
+    if (idx >= 0) [menu insertItem:[NSMenuItem separatorItem] atIndex:idx + 1];
+    idx = [menu indexOfItemWithTitle:@"Open Recent"];
+    if (idx >= 0) [menu insertItem:[NSMenuItem separatorItem] atIndex:idx + 1];
+  }
+
+  // Edit: Cut, Copy, Paste, Delete | --- | Find | --- | Attach Files..., Add Link..., Spelling... | --- | Select All
+  menu = [[mainMenu itemWithTitle:@"Edit"] submenu];
+  if (menu) {
+    idx = [menu indexOfItemWithTitle:@"Select All"];
+    if (idx >= 0) [menu insertItem:[NSMenuItem separatorItem] atIndex:idx];
+    idx = [menu indexOfItemWithTitle:@"Spelling..."];
+    if (idx >= 0) [menu insertItem:[NSMenuItem separatorItem] atIndex:idx + 1];
+    idx = [menu indexOfItemWithTitle:@"Find"];
+    if (idx >= 0) [menu insertItem:[NSMenuItem separatorItem] atIndex:idx + 1];
+    idx = [menu indexOfItemWithTitle:@"Delete"];
+    if (idx >= 0) [menu insertItem:[NSMenuItem separatorItem] atIndex:idx + 1];
+  }
+
+  // Format: Font | --- | Text | --- | Styles | --- | toggle items | --- | Page Layout...
+  menu = [[mainMenu itemWithTitle:@"Format"] submenu];
+  if (menu) {
+    idx = [menu indexOfItemWithTitle:@"Page Layout..."];
+    if (idx >= 0) [menu insertItem:[NSMenuItem separatorItem] atIndex:idx];
+    idx = [menu indexOfItemWithTitle:@"Styles"];
+    if (idx >= 0) [menu insertItem:[NSMenuItem separatorItem] atIndex:idx + 1];
+    idx = [menu indexOfItemWithTitle:@"Text"];
+    if (idx >= 0) [menu insertItem:[NSMenuItem separatorItem] atIndex:idx + 1];
+    idx = [menu indexOfItemWithTitle:@"Font"];
+    if (idx >= 0) [menu insertItem:[NSMenuItem separatorItem] atIndex:idx + 1];
+  }
+
+  // Windows: Arrange in Front | --- | Miniaturize Window, Close Window | --- | Print...
+  menu = [[mainMenu itemWithTitle:@"Windows"] submenu];
+  if (menu) {
+    idx = [menu indexOfItemWithTitle:@"Print..."];
+    if (idx >= 0) [menu insertItem:[NSMenuItem separatorItem] atIndex:idx];
+    idx = [menu indexOfItemWithTitle:@"Close Window"];
+    if (idx >= 0) [menu insertItem:[NSMenuItem separatorItem] atIndex:idx + 1];
+    idx = [menu indexOfItemWithTitle:@"Arrange in Front"];
+    if (idx >= 0) [menu insertItem:[NSMenuItem separatorItem] atIndex:idx + 1];
+  }
+}
+
+- (void) undo:(id)sender
+{
+  Document *doc = [Document documentForWindow: [NSApp keyWindow]];
+  [doc undo: sender];
+}
+
+- (void) redo:(id)sender
+{
+  Document *doc = [Document documentForWindow: [NSApp keyWindow]];
+  [doc redo: sender];
+}
+
+- (BOOL) validateMenuItem:(NSMenuItem *)aCell
+{
+  SEL action = [aCell action];
+
+  if (action == @selector(undo:) || action == @selector(redo:))
+    {
+      Document *doc = [Document documentForWindow: [NSApp keyWindow]];
+      if (action == @selector(undo:))
+        {
+          [aCell setTitle:[[doc undoManager] undoMenuItemTitle]];
+          return doc && [[doc undoManager] canUndo];
+        }
+      else
+        {
+          [aCell setTitle:[[doc undoManager] redoMenuItemTitle]];
+          return doc && [[doc undoManager] canRedo];
+        }
+    }
+  return YES;
 }
 
 - (NSArray*) documents

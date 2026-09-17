@@ -15,6 +15,8 @@
 - (void) createNew:(id)sender;
 - (void) open:(id)sender;
 - (void) saveAll:(id)sender;
+- (void) undo:(id)sender;
+- (void) redo:(id)sender;
 - (void) showInfoPanel:(id)sender;
 
 /* Outlet methods */
