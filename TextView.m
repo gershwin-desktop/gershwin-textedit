@@ -28,20 +28,23 @@
 - (void) peformLinkPanelAction:(id)sender
 {
   NSRange selectionRange = [self selectedRange];
-  if ([sender tag] == 1) {
-    NSURL* url = [NSURL URLWithString:[linkField stringValue]];
-    if (url) {
-      NSMutableDictionary* dict = [NSMutableDictionary new];
-      [dict setObject:url forKey:NSLinkAttributeName];
+  if ([self shouldChangeTextInRange:selectionRange replacementString:nil]) {
+    if ([sender tag] == 1) {
+      NSURL* url = [NSURL URLWithString:[linkField stringValue]];
+      if (url) {
+        NSMutableDictionary* dict = [NSMutableDictionary new];
+        [dict setObject:url forKey:NSLinkAttributeName];
 
+        [[self textStorage] setAttributes:dict range:selectionRange];
+        [dict release];
+      }
+    }
+    else {
+      NSDictionary* dict = [NSDictionary new];
       [[self textStorage] setAttributes:dict range:selectionRange];
       [dict release];
     }
-  }
-  else {
-    NSDictionary* dict = [NSDictionary new];
-    [[self textStorage] setAttributes:dict range:selectionRange];
-    [dict release];
+    [self didChangeText];
   }
 
   [linkPanel orderOut:self];
@@ -63,7 +66,10 @@
   else if ([sender tag] == 30) { /* clear styles */
     NSDictionary* dict = [NSDictionary dictionary];
     if (dict && s.length > 0) {
-      [[self textStorage] setAttributes:dict range:s];
+      if ([self shouldChangeTextInRange:s replacementString:nil]) {
+        [[self textStorage] setAttributes:dict range:s];
+        [self didChangeText];
+      }
     }
     else if (dict) {
       [self setTypingAttributes:dict];
@@ -72,7 +78,10 @@
   else { /* apply styles */
     NSDictionary* dict = [[StylesPanel sharedInstance] selectedStyle];
     if (dict && s.length > 0) {
-      [[self textStorage] setAttributes:dict range:s];
+      if ([self shouldChangeTextInRange:s replacementString:nil]) {
+        [[self textStorage] setAttributes:dict range:s];
+        [self didChangeText];
+      }
     }
     else if (dict) {
       [self setTypingAttributes:dict];
@@ -96,7 +105,10 @@
 
     dict = [dict mutableCopy];
     [dict setValue:font forKey:@"NSFont"];
-    [[self textStorage] setAttributes:dict range:s];
+    if ([self shouldChangeTextInRange:s replacementString:nil]) {
+      [[self textStorage] setAttributes:dict range:s];
+      [self didChangeText];
+    }
   }
 }
 

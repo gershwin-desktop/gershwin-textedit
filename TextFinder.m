@@ -231,8 +231,12 @@ static id	sharedFindObject = nil;
     if (!text) {
         NSBeep ();
     } else {
-		[[text textStorage] replaceCharactersInRange: [text selectedRange] withString: [replaceTextField stringValue]];
-		[text didChangeText];
+        NSRange selectedRange = [text selectedRange];
+        NSString *replaceString = [replaceTextField stringValue];
+        if ([text shouldChangeTextInRange: selectedRange replacementString: replaceString]) {
+            [[text textStorage] replaceCharactersInRange: selectedRange withString: replaceString];
+            [text didChangeText];
+        }
     }
     [statusField setStringValue: @""];
 }

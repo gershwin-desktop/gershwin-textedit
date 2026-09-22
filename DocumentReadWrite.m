@@ -287,8 +287,14 @@ defaultPadding (void)
                 {
                   [textStorage beginEditing];
                   [[textStorage mutableString] setString: fileContents];
-                  [self setRichText: NO];
                   [textStorage endEditing];
+                  /* Apply the plain text attributes outside of the edit block:
+                     setRichText: notifies the text view (shouldChangeTextIn
+                     Range:/didChangeText), and that scrolls the selection into
+                     view, which generates glyphs.  Glyph generation while the
+                     text storage still has unprocessed editing raises an
+                     NSGenericException and the document never opens. */
+                  [self setRichText: NO];
                   [fileContents release];
                   encodingIfPlainText = encoding;
                   documentEncoding = encoding;

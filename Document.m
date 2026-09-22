@@ -736,7 +736,12 @@ static BOOL hyphenationSupported(void)
 
   if ([textStorage length])
     {
-      [textStorage setAttributes:textAttributes range:NSMakeRange(0, [textStorage length])];
+      NSTextView *tv = [self firstTextView];
+      if ([tv shouldChangeTextInRange:NSMakeRange(0, [textStorage length])
+                    replacementString:nil]) {
+        [textStorage setAttributes:textAttributes range:NSMakeRange(0, [textStorage length])];
+        [tv didChangeText];
+      }
     }
 
   [view setTypingAttributes:textAttributes];
