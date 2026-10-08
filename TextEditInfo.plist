@@ -3,6 +3,7 @@
     ApplicationIcon = TextEdit.png;
     ApplicationName = TextEdit;
     ApplicationRelease = 4;
+    URL = "https://github.com/gershwin-desktop/gershwin-textedit";
     Authors = (
 	"Ali Ozer",
 	"Jeff Teunissen"

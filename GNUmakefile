@@ -16,6 +16,7 @@ TextEdit_RESOURCE_FILES= \
 	EditTitle.tiff \
 	Encodings.txt \
 	ScriptingInfo.plist \
+	TextEditInfo.plist \
 	ApplicationScripting.xlp \
 	rtf.tiff \
 	rtfd.tiff \
